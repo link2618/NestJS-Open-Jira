@@ -23,6 +23,9 @@ export default function handler(
         case "GET":
             return getEntry(req, res);
 
+        case "DELETE":
+            return deleteEntry(req, res);
+
         default:
             return res
                 .status(400)
@@ -81,3 +84,19 @@ const updateEntry = async (req: NextApiRequest, res: NextApiResponse<Data>) => {
     // entryToUpdate.status = status;
     // await entryToUpdate.save();
 };
+
+const deleteEntry = async (req: NextApiRequest, res: NextApiResponse) => {
+    const { id } = req.query;
+
+    await db.connect();
+    const entryToDelete = await Entry.findById(id);
+    await db.disconnect();
+
+    if (!entryToDelete) {
+        return res.status(404).json({ message: 'No existe entry' });
+    }
+
+    const deleteEntry = await Entry.findByIdAndDelete(id);
+
+    res.status(200).json({ deleteEntry });
+}
